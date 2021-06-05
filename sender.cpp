@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  Huffman-Coding-Sender
+//  Huffman-TCP-Sender
 //
 //  Created by 엄서훈 on 2021/06/05.
 //
@@ -93,7 +93,7 @@ void recursive_traversal (Node* node, int level) {
 
 void huffman_encode (char user_input[], char huffman_result[]) {
     int user_length = int(strlen(user_input));
-
+    
     // HashMap 이용 문자 빈도수 추출
     for (int i=0; i<user_length; ++i) {
         frequency[user_input[i]]++;
@@ -148,7 +148,7 @@ void tcp_send(const char receiver_ip[], const char receiver_port[], char message
     struct sockaddr_in serv_addr;
     struct sockaddr_in clnt_addr;
     socklen_t clnt_addr_size;
-
+    
     serv_sock=socket(PF_INET, SOCK_STREAM, 0);
     if(serv_sock == -1)
         error_handling("socket() error");
@@ -176,6 +176,15 @@ void tcp_send(const char receiver_ip[], const char receiver_port[], char message
     close(serv_sock);
 }
 
+void export_huffman_codes() {
+    FILE *fp = fopen("huffman.codes", "w");
+    for (int i=0; i<CHAR_RANGE; ++i) {
+        if (!coded[i]) continue;
+        fprintf(fp, "%c %s\n", i, huffman_codes[i]);
+    }
+    fclose(fp);
+}
+
 int main(int argc, const char * argv[]) {
     // 인자 검증
     if (argc != 3) {
@@ -193,6 +202,8 @@ int main(int argc, const char * argv[]) {
     huffman_encode(user_input, huffman_result);
     
     printf("허프만 부호화 결과 >> %s\n", huffman_result);
+    
+    export_huffman_codes();
     
     printf("전송 중 ...\n");
     tcp_send(argv[1], argv[2], huffman_result);
