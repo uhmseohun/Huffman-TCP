@@ -18,7 +18,7 @@
 using namespace std;
 
 const int BUFFER_SIZE = 1024;
-const int CHAR_RANGE = 300000;
+const int CHAR_RANGE = 300;
 const int HUFFMAN_LENGTH = 15;
 typedef pair<char, int> ipair; // Char with Frequency
 
