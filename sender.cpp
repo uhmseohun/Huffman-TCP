@@ -17,7 +17,7 @@
 #include <sys/socket.h>
 using namespace std;
 
-const int BUFFER_SIZE = 1024;
+const int MAX_LENGTH = 1024;
 const int CHAR_RANGE = 300;
 const int HUFFMAN_LENGTH = 15;
 typedef pair<char, int> ipair; // Char with Frequency
@@ -170,8 +170,8 @@ void tcp_send(const char receiver_ip[], const char receiver_port[], char message
     clnt_sock=accept(serv_sock, (struct sockaddr*)&clnt_addr,&clnt_addr_size);
     if(clnt_sock==-1)
         error_handling("accept() error");
-    
-    write(clnt_sock, message, sizeof(message));
+
+    write(clnt_sock, message, sizeof(char) * strlen(message));
     close(clnt_sock);
     close(serv_sock);
 }
@@ -186,6 +186,7 @@ void export_huffman_codes() {
 }
 
 int main(int argc, const char * argv[]) {
+    puts(argv[0]);
     // 인자 검증
     if (argc != 3) {
         puts("Usage: %s <Receiver IP> <Receiver Port>");
@@ -194,11 +195,11 @@ int main(int argc, const char * argv[]) {
     
     // 문자열 입력
     printf("전송할 문자열을 입력하세요 (한글 제외) >> ");
-    char user_input[BUFFER_SIZE];
+    char user_input[MAX_LENGTH];
     scanf("%s", user_input);
     
     // 허프만 압축
-    char huffman_result[BUFFER_SIZE * HUFFMAN_LENGTH];
+    char huffman_result[MAX_LENGTH * HUFFMAN_LENGTH];
     huffman_encode(user_input, huffman_result);
     
     printf("허프만 부호화 결과 >> %s\n", huffman_result);
@@ -207,7 +208,7 @@ int main(int argc, const char * argv[]) {
     
     printf("전송 중 ...\n");
     tcp_send(argv[1], argv[2], huffman_result);
-    
+
     int ascii_length = int(strlen(user_input));
     int huffman_length = int(strlen(huffman_result));
     double encode_rate = 1 - double(ascii_length) / huffman_length;
